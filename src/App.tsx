@@ -28,15 +28,10 @@ const calcVerticalOffsets = moize(function(
     Math.max(0, top - Math.floor(overflow / 2) * cellHeight),
     maxPadding
   )
-  const paddingBottom = Math.min(
-    Math.max(0, allHeight - paddingTop - renderedRowCount * cellHeight),
-    maxPadding
-  )
   const offsetTop = Math.floor(paddingTop / cellHeight)
 
   return {
     paddingTop,
-    paddingBottom,
     offsetTop
   }
 })
@@ -49,15 +44,10 @@ const calcHorizontalOffsets = moize(function(
     Math.max(0, left - Math.floor(overflow / 2) * cellWidth),
     maxPadding
   )
-  const paddingRight = Math.min(
-    Math.max(0, allWidth - paddingLeft - renderedColumnCount * cellWidth),
-    maxPadding
-  )
   const offsetLeft = Math.floor(paddingLeft / cellWidth)
 
   return {
     paddingLeft,
-    paddingRight,
     offsetLeft
   }
 })
@@ -136,12 +126,9 @@ function App() {
   const renderedRowCount = calcRenderedRowCount(height)
   const renderedColumnCount = calcRenderedColumnCount(width)
 
-  const { paddingTop, paddingBottom, offsetTop } = calcVerticalOffsets(
-    top,
-    renderedRowCount
-  )
+  const { paddingTop, offsetTop } = calcVerticalOffsets(top, renderedRowCount)
 
-  const { paddingLeft, paddingRight, offsetLeft } = calcHorizontalOffsets(
+  const { paddingLeft, offsetLeft } = calcHorizontalOffsets(
     left,
     renderedColumnCount
   )
@@ -166,25 +153,28 @@ function App() {
       </div>
       <div css={scrollContainerStyle} ref={scrollRef}>
         <div
-          style={{
-            paddingTop: `${paddingTop}px`,
-            paddingBottom: `${paddingBottom}px`,
-            paddingLeft: `${paddingLeft}px`,
-            paddingRight: `${paddingRight}px`,
-            display: 'grid',
-            gridTemplateColumns: `repeat(${renderedColumnCount},${cellWidth}px)`,
-            gridTemplateRows: `repeat(${renderedRowCount},${cellHeight}px)`
-          }}
+          style={{ width: allWidth, height: allHeight, position: 'relative' }}
         >
-          {indices
-            .map(row =>
-              row.map(({ x, y }) => (
-                <div css={cellStyle} key={`y${y}-x${x}`}>
-                  {JSON.stringify({ x, y })}
-                </div>
-              ))
-            )
-            .flat()}
+          <div
+            style={{
+              position: 'absolute',
+              top: `${paddingTop}px`,
+              left: `${paddingLeft}px`,
+              display: 'grid',
+              gridTemplateColumns: `repeat(${renderedColumnCount},${cellWidth}px)`,
+              gridTemplateRows: `repeat(${renderedRowCount},${cellHeight}px)`
+            }}
+          >
+            {indices
+              .map(row =>
+                row.map(({ x, y }) => (
+                  <div css={cellStyle} key={`y${y}-x${x}`}>
+                    {JSON.stringify({ x, y })}
+                  </div>
+                ))
+              )
+              .flat()}
+          </div>
         </div>
       </div>
     </>
