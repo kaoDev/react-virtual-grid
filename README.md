@@ -3,6 +3,8 @@
 this is a proof of concept implementation of a virtualized grid based on
 css-grid with usage of react hooks
 
+## Demo: [https://react-virtual-grid.netlify.com/](https://react-virtual-grid.netlify.com/)
+
 This project was bootstrapped with
 [Create React App](https://github.com/facebook/create-react-app).
 
