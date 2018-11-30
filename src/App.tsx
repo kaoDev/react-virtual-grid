@@ -22,10 +22,14 @@ const calcVerticalOffsets = moize(function(
   top: number,
   renderedRowCount: number
 ) {
-  const paddingTop = Math.max(0, top - Math.floor(overflow / 2) * cellHeight)
-  const paddingBottom = Math.max(
-    0,
-    allHeight - paddingTop - renderedRowCount * cellHeight
+  const maxPadding = allHeight - renderedRowCount * cellHeight
+  const paddingTop = Math.min(
+    Math.max(0, top - Math.floor(overflow / 2) * cellHeight),
+    maxPadding
+  )
+  const paddingBottom = Math.min(
+    Math.max(0, allHeight - paddingTop - renderedRowCount * cellHeight),
+    maxPadding
   )
   const offsetTop = Math.floor(paddingTop / cellHeight)
 
@@ -39,10 +43,14 @@ const calcHorizontalOffsets = moize(function(
   left: number,
   renderedColumnCount: number
 ) {
-  const paddingLeft = Math.max(0, left - Math.floor(overflow / 2) * cellWidth)
-  const paddingRight = Math.max(
-    0,
-    allWidth - paddingLeft - renderedColumnCount * cellWidth
+  const maxPadding = allWidth - renderedColumnCount * cellWidth
+  const paddingLeft = Math.min(
+    Math.max(0, left - Math.floor(overflow / 2) * cellWidth),
+    maxPadding
+  )
+  const paddingRight = Math.min(
+    Math.max(0, allWidth - paddingLeft - renderedColumnCount * cellWidth),
+    maxPadding
   )
   const offsetLeft = Math.floor(paddingLeft / cellWidth)
 
