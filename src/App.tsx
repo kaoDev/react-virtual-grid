@@ -114,6 +114,7 @@ function App() {
       <Global
         styles={{
           'body, #root': {
+            fontFamily: 'sans-serif',
             height: '100vh',
             width: '100vw',
             overflow: 'hidden',
@@ -121,6 +122,23 @@ function App() {
           }
         }}
       />
+      <div
+        css={css({
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          background: 'white',
+          boxShadow: '1px 1px 10px rgba(0,0,0,0.4)',
+          padding: 8
+        })}
+      >
+        <a
+          target="_blank"
+          href={'https://github.com/kaoDev/react-virtual-grid'}
+        >
+          See code on github
+        </a>
+      </div>
       <div
         css={css({
           overflow: 'scroll',
