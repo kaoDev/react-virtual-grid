@@ -2,6 +2,7 @@ import React, { useRef } from 'react'
 import { useComponentScrollPosition } from './scrollHook'
 /** @jsx jsx */
 import { jsx, css, Global } from '@emotion/core'
+import styled from '@emotion/styled'
 import moize from 'moize'
 import { useElementSize } from './elementSize'
 
@@ -91,6 +92,41 @@ const calcRenderedColumnCount = moize(function(width: number) {
   return Math.floor(width / cellWidth) + overflow
 })
 
+const globalStyle = (
+  <Global
+    styles={{
+      'body, #root': {
+        fontFamily: 'sans-serif',
+        height: '100vh',
+        width: '100vw',
+        overflow: 'hidden',
+        margin: 0
+      }
+    }}
+  />
+)
+
+const githubLinkWrapperStyle = css({
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  background: 'white',
+  boxShadow: '1px 1px 10px rgba(0,0,0,0.4)',
+  padding: 8
+})
+const scrollContainerStyle = css({
+  overflow: 'scroll',
+  height: '100%',
+  width: '100%'
+})
+const cellStyle = css({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '12px',
+  border: '1px solid rgba(30, 30, 30, 0.5)'
+})
+
 function App() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const { left, top } = useComponentScrollPosition(scrollRef)
@@ -119,27 +155,8 @@ function App() {
 
   return (
     <>
-      <Global
-        styles={{
-          'body, #root': {
-            fontFamily: 'sans-serif',
-            height: '100vh',
-            width: '100vw',
-            overflow: 'hidden',
-            margin: 0
-          }
-        }}
-      />
-      <div
-        css={css({
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          background: 'white',
-          boxShadow: '1px 1px 10px rgba(0,0,0,0.4)',
-          padding: 8
-        })}
-      >
+      {globalStyle}
+      <div css={githubLinkWrapperStyle}>
         <a
           target="_blank"
           href={'https://github.com/kaoDev/react-virtual-grid'}
@@ -147,16 +164,9 @@ function App() {
           See code on github
         </a>
       </div>
-      <div
-        css={css({
-          overflow: 'scroll',
-          height: '100%',
-          width: '100%'
-        })}
-        ref={scrollRef}
-      >
+      <div css={scrollContainerStyle} ref={scrollRef}>
         <div
-          css={css({
+          style={{
             paddingTop: `${paddingTop}px`,
             paddingBottom: `${paddingBottom}px`,
             paddingLeft: `${paddingLeft}px`,
@@ -164,27 +174,12 @@ function App() {
             display: 'grid',
             gridTemplateColumns: `repeat(${renderedColumnCount},${cellWidth}px)`,
             gridTemplateRows: `repeat(${renderedRowCount},${cellHeight}px)`
-          })}
+          }}
         >
           {indices
             .map(row =>
               row.map(({ x, y }) => (
-                <div
-                  css={css(
-                    {
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '12px',
-                      border: '1px solid rgba(30, 30, 30, 0.5)'
-                    },
-                    {
-                      gridRow: ((y - offsetTop) % renderedRowCount) + 1,
-                      gridColumn: ((x - offsetLeft) % renderedColumnCount) + 1
-                    }
-                  )}
-                  key={`y${y}-x${x}`}
-                >
+                <div css={cellStyle} key={`y${y}-x${x}`}>
                   {JSON.stringify({ x, y })}
                 </div>
               ))
