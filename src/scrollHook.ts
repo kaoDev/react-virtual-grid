@@ -13,7 +13,7 @@ function getScrollPosition(el: HTMLElement | null) {
 
 export function useComponentScrollPosition(
   ref: React.RefObject<HTMLElement>,
-  throttle = 50
+  throttle = 16
 ) {
   const [scrollPosition, setScrollPosition] = useState(
     getScrollPosition(ref.current)
@@ -22,9 +22,15 @@ export function useComponentScrollPosition(
   const lastUpdate = useRef(0)
 
   function handleScroll() {
-    if (Date.now() - lastUpdate.current > 50) {
+    if (Date.now() - lastUpdate.current > throttle) {
       lastUpdate.current = Date.now()
-      setScrollPosition(getScrollPosition(ref.current))
+      const nextPosition = getScrollPosition(ref.current)
+      if (
+        nextPosition.left !== scrollPosition.left ||
+        nextPosition.top !== scrollPosition.top
+      ) {
+        setScrollPosition(nextPosition)
+      }
     }
   }
 

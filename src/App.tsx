@@ -2,7 +2,6 @@ import React, { useRef } from 'react'
 import { useComponentScrollPosition } from './scrollHook'
 /** @jsx jsx */
 import { jsx, css, Global } from '@emotion/core'
-import styled from '@emotion/styled'
 import moize from 'moize'
 import { useElementSize } from './elementSize'
 
@@ -11,10 +10,10 @@ jsx('a') // use jsx to protect it from code elimination
 const rows = 10000
 const columns = 10000
 
-const cellHeight = 64
-const cellWidth = 128
+const cellHeight = 50
+const cellWidth = 100
 
-const overflow = 2
+const overscan = 4
 
 const allHeight = rows * cellHeight
 const allWidth = columns * cellWidth
@@ -24,11 +23,15 @@ const calcVerticalOffsets = moize(function(
   renderedRowCount: number
 ) {
   const maxPadding = allHeight - renderedRowCount * cellHeight
-  const paddingTop = Math.min(
-    Math.max(0, top - Math.floor(overflow / 2) * cellHeight),
-    maxPadding
-  )
-  const offsetTop = Math.floor(paddingTop / cellHeight)
+
+  const scrolledCellFraction = top % cellHeight
+
+  const paddingTop =
+    Math.min(
+      Math.max(0, top - Math.floor(overscan / 2) * cellHeight),
+      maxPadding
+    ) - scrolledCellFraction
+  const offsetTop = Math.ceil(top / cellHeight)
 
   return {
     paddingTop,
@@ -40,11 +43,15 @@ const calcHorizontalOffsets = moize(function(
   renderedColumnCount: number
 ) {
   const maxPadding = allWidth - renderedColumnCount * cellWidth
-  const paddingLeft = Math.min(
-    Math.max(0, left - Math.floor(overflow / 2) * cellWidth),
-    maxPadding
-  )
-  const offsetLeft = Math.floor(paddingLeft / cellWidth)
+
+  const scrolledCellFraction = left % cellWidth
+
+  const paddingLeft =
+    Math.min(
+      Math.max(0, left - Math.ceil(overscan / 2) * cellWidth),
+      maxPadding
+    ) - scrolledCellFraction
+  const offsetLeft = Math.round(paddingLeft / cellWidth)
 
   return {
     paddingLeft,
@@ -76,10 +83,10 @@ const generateGridArray = moize(function(
 })
 
 const calcRenderedRowCount = moize(function(height: number) {
-  return Math.floor(height / cellHeight) + overflow
+  return Math.floor(height / cellHeight) + overscan
 })
 const calcRenderedColumnCount = moize(function(width: number) {
-  return Math.floor(width / cellWidth) + overflow
+  return Math.floor(width / cellWidth) + overscan
 })
 
 const globalStyle = (
@@ -100,6 +107,7 @@ const githubLinkWrapperStyle = css({
   position: 'fixed',
   top: 0,
   left: 0,
+  zIndex: 1,
   background: 'white',
   boxShadow: '1px 1px 10px rgba(0,0,0,0.4)',
   padding: 8
@@ -156,24 +164,24 @@ function App() {
           style={{ width: allWidth, height: allHeight, position: 'relative' }}
         >
           <div
-            style={{
+            css={css({
               position: 'absolute',
-              top: `${paddingTop}px`,
-              left: `${paddingLeft}px`,
               display: 'grid',
               gridTemplateColumns: `repeat(${renderedColumnCount},${cellWidth}px)`,
               gridTemplateRows: `repeat(${renderedRowCount},${cellHeight}px)`
+            })}
+            style={{
+              top: `${paddingTop}px`,
+              left: `${paddingLeft}px`
             }}
           >
-            {indices
-              .map(row =>
-                row.map(({ x, y }) => (
-                  <div css={cellStyle} key={`y${y}-x${x}`}>
-                    {JSON.stringify({ x, y })}
-                  </div>
-                ))
-              )
-              .flat()}
+            {indices.map(row =>
+              row.map(({ x, y }) => (
+                <div css={cellStyle} key={`y${y}-x${x}`}>
+                  {JSON.stringify({ x, y })}
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
