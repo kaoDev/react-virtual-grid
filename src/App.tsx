@@ -10,8 +10,8 @@ jsx('a') // use jsx to protect it from code elimination
 const rows = 10000
 const columns = 10000
 
-const cellHeight = 50
-const cellWidth = 100
+const cellHeight = 64
+const cellWidth = 128
 
 const overscan = 4
 
@@ -26,12 +26,14 @@ const calcVerticalOffsets = moize(function(
 
   const scrolledCellFraction = top % cellHeight
 
-  const paddingTop =
-    Math.min(
-      Math.max(0, top - Math.floor(overscan / 2) * cellHeight),
-      maxPadding
-    ) - scrolledCellFraction
-  const offsetTop = Math.ceil(top / cellHeight)
+  const paddingTop = Math.min(
+    Math.max(
+      0,
+      top - Math.floor(overscan / 2) * cellHeight - scrolledCellFraction
+    ),
+    maxPadding
+  )
+  const offsetTop = Math.round(paddingTop / cellHeight)
 
   return {
     paddingTop,
@@ -46,11 +48,13 @@ const calcHorizontalOffsets = moize(function(
 
   const scrolledCellFraction = left % cellWidth
 
-  const paddingLeft =
-    Math.min(
-      Math.max(0, left - Math.ceil(overscan / 2) * cellWidth),
-      maxPadding
-    ) - scrolledCellFraction
+  const paddingLeft = Math.min(
+    Math.max(
+      0,
+      left - Math.ceil(overscan / 2) * cellWidth - scrolledCellFraction
+    ),
+    maxPadding
+  )
   const offsetLeft = Math.round(paddingLeft / cellWidth)
 
   return {
