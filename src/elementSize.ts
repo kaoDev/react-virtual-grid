@@ -1,15 +1,15 @@
-import { useState, useCallback, useLayoutEffect } from 'react'
+import { useState, useCallback, useLayoutEffect } from "react"
 
 const getElementSize = function(ref: HTMLElement | null) {
   if (ref) {
     return {
       width: ref.offsetWidth,
-      height: ref.offsetHeight
+      height: ref.offsetHeight,
     }
   }
   return {
     width: 0,
-    height: 0
+    height: 0,
   }
 }
 
@@ -22,7 +22,7 @@ export function useElementSize(ref: React.RefObject<HTMLElement>) {
         setDimensions(getElementSize(ref.current))
       }
     },
-    [ref]
+    [ref],
   )
 
   useLayoutEffect(
@@ -33,13 +33,13 @@ export function useElementSize(ref: React.RefObject<HTMLElement>) {
 
       handleResize()
 
-      window.addEventListener('resize', handleResize)
+      window.addEventListener("resize", handleResize)
 
       return () => {
-        window.removeEventListener('resize', handleResize)
+        window.removeEventListener("resize", handleResize)
       }
     },
-    [ref.current]
+    [ref.current],
   )
 
   return dimensions
