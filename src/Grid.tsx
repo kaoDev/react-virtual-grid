@@ -86,7 +86,7 @@ const calcRenderedColumnCount = moize(function(
 })
 
 const ScrollContainer = styled.div({
-  overflow: "scroll",
+  overflow: "auto",
   height: "100%",
   width: "100%",
 })
@@ -199,5 +199,5 @@ export function Grid({
 Grid.defaultProps = {
   cellHeight: 64,
   cellWidth: 128,
-  overScan: 2,
+  overScan: 4,
 }
