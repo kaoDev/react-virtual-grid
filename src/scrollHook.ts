@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect, useRef } from "react"
+import { useLayoutEffect, useRef, useState } from "react"
 
 function getScrollPosition(el: HTMLElement | null) {
   if (!el) {
@@ -21,20 +21,25 @@ export function useComponentScrollPosition(
 
   const lastUpdate = useRef(0)
 
-  function handleScroll() {
-    if (Date.now() - lastUpdate.current > throttle) {
-      lastUpdate.current = Date.now()
-      const nextPosition = getScrollPosition(ref.current)
-      if (
-        nextPosition.left !== scrollPosition.left ||
-        nextPosition.top !== scrollPosition.top
-      ) {
-        setScrollPosition(nextPosition)
+  useLayoutEffect(() => {
+    function handleScroll() {
+      if (Date.now() - lastUpdate.current > throttle) {
+        lastUpdate.current = Date.now()
+        const nextPosition = getScrollPosition(ref.current)
+
+        setScrollPosition((previous) => {
+          if (
+            nextPosition.left !== previous.left ||
+            nextPosition.top !== previous.top
+          ) {
+            return nextPosition
+          }
+
+          return previous
+        })
       }
     }
-  }
 
-  useLayoutEffect(() => {
     if (ref.current) {
       const element = ref.current
 
@@ -42,7 +47,7 @@ export function useComponentScrollPosition(
 
       return () => element.removeEventListener("scroll", handleScroll)
     }
-  })
+  }, [ref, throttle])
 
   return scrollPosition
 }

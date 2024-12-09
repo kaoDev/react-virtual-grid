@@ -1,112 +1,71 @@
-import React, { useRef } from "react"
-import { useComponentScrollPosition } from "./scrollHook"
 import moize from "moize"
-import styled from "@emotion/styled"
+import React, { useRef } from "react"
 import { useElementSize } from "./elementSize"
+import { useComponentScrollPosition } from "./scrollHook"
 
-const calcVerticalOffsets = moize(function(
-  top: number,
-  maxPadding: number,
-  cellHeight: number,
-  overScan: number,
-) {
-  const scrolledCellFraction = top % cellHeight
+const calcVerticalOffsets = moize(
+  (top: number, maxPadding: number, cellHeight: number, overScan: number) => {
+    const scrolledCellFraction = top % cellHeight
 
-  const paddingTop = Math.min(
-    Math.max(
-      0,
-      top - Math.floor(overScan / 2) * cellHeight - scrolledCellFraction,
-    ),
-    maxPadding,
-  )
-  const offsetTop = Math.round(paddingTop / cellHeight)
+    const paddingTop = Math.min(
+      Math.max(
+        0,
+        top - Math.floor(overScan / 2) * cellHeight - scrolledCellFraction,
+      ),
+      maxPadding,
+    )
+    const offsetTop = Math.round(paddingTop / cellHeight)
 
-  return {
-    paddingTop,
-    offsetTop,
-  }
-})
-const calcHorizontalOffsets = moize(function(
-  left: number,
-  maxPadding: number,
-  cellWidth: number,
-  overScan: number,
-) {
-  const scrolledCellFraction = left % cellWidth
-
-  const paddingLeft = Math.min(
-    Math.max(
-      0,
-      left - Math.ceil(overScan / 2) * cellWidth - scrolledCellFraction,
-    ),
-    maxPadding,
-  )
-  const offsetLeft = Math.round(paddingLeft / cellWidth)
-
-  return {
-    paddingLeft,
-    offsetLeft,
-  }
-})
-
-const generateRow = moize(function(
-  offsetLeft: number,
-  renderedColumnCount: number,
-) {
-  return Array.from({ length: renderedColumnCount }).map(
-    (_, x) => x + offsetLeft,
-  )
-})
-
-const generateGridArray = moize(function(
-  offsetTop: number,
-  offsetLeft: number,
-  renderedColumnCount: number,
-  renderedRowCount: number,
-) {
-  return Array.from({ length: renderedRowCount }).map((_, row) => {
-    const y = row + offsetTop
-    return { y, row: generateRow(offsetLeft, renderedColumnCount) }
-  })
-})
-
-const calcRenderedRowCount = moize(function(
-  renderedHeight: number,
-  cellHeight: number,
-  overScan: number,
-) {
-  return Math.floor(renderedHeight / cellHeight) + overScan
-})
-const calcRenderedColumnCount = moize(function(
-  renderedWidth: number,
-  cellWidth: number,
-  overScan: number,
-) {
-  return Math.floor(renderedWidth / cellWidth) + overScan
-})
-
-const ScrollContainer = styled.div({
-  overflow: "auto",
-  height: "100%",
-  width: "100%",
-})
-const GridSpace = styled.div({
-  position: "relative",
-})
-const GridWindow = styled.div(
-  {
-    position: "absolute",
-    display: "grid",
+    return {
+      paddingTop,
+      offsetTop,
+    }
   },
-  (props: {
-    cellHeight: number
-    cellWidth: number
-    columns: number
-    rows: number
-  }) => ({
-    gridTemplateColumns: `repeat(${props.columns},${props.cellWidth}px)`,
-    gridTemplateRows: `repeat(${props.rows},${props.cellHeight}px)`,
-  }),
+)
+const calcHorizontalOffsets = moize(
+  (left: number, maxPadding: number, cellWidth: number, overScan: number) => {
+    const scrolledCellFraction = left % cellWidth
+
+    const paddingLeft = Math.min(
+      Math.max(
+        0,
+        left - Math.ceil(overScan / 2) * cellWidth - scrolledCellFraction,
+      ),
+      maxPadding,
+    )
+    const offsetLeft = Math.round(paddingLeft / cellWidth)
+
+    return {
+      paddingLeft,
+      offsetLeft,
+    }
+  },
+)
+
+const generateRow = moize((offsetLeft: number, renderedColumnCount: number) =>
+  Array.from({ length: renderedColumnCount }).map((_, x) => x + offsetLeft),
+)
+
+const generateGridArray = moize(
+  (
+    offsetTop: number,
+    offsetLeft: number,
+    renderedColumnCount: number,
+    renderedRowCount: number,
+  ) =>
+    Array.from({ length: renderedRowCount }).map((_, row) => {
+      const y = row + offsetTop
+      return { y, row: generateRow(offsetLeft, renderedColumnCount) }
+    }),
+)
+
+const calcRenderedRowCount = moize(
+  (renderedHeight: number, cellHeight: number, overScan: number) =>
+    Math.floor(renderedHeight / cellHeight) + overScan,
+)
+const calcRenderedColumnCount = moize(
+  (renderedWidth: number, cellWidth: number, overScan: number) =>
+    Math.floor(renderedWidth / cellWidth) + overScan,
 )
 
 export interface CellProps {
@@ -171,28 +130,30 @@ export function Grid({
   )
 
   return (
-    <ScrollContainer ref={scrollRef}>
-      <GridSpace style={{ width: gridWidth, height: gridHeight }}>
-        <GridWindow
-          rows={renderedRowCount}
-          columns={renderedColumnCount}
-          cellWidth={cellWidth}
-          cellHeight={cellHeight}
+    <div className="w-full h-full overflow-auto" ref={scrollRef}>
+      <div
+        className="relative"
+        style={{ width: gridWidth, height: gridHeight }}
+      >
+        <div
+          className="grid absolute"
           style={{
             top: `${paddingTop}px`,
             left: `${paddingLeft}px`,
+            gridTemplateColumns: `repeat(${renderedColumnCount},${cellWidth}px)`,
+            gridTemplateRows: `repeat(${renderedRowCount},${cellHeight}px)`,
           }}
         >
           {indices.map(({ y, row }) => (
             <React.Fragment key={y}>
-              {row.map(x => (
+              {row.map((x) => (
                 <React.Fragment key={x}>{renderCell({ x, y })}</React.Fragment>
               ))}
             </React.Fragment>
           ))}
-        </GridWindow>
-      </GridSpace>
-    </ScrollContainer>
+        </div>
+      </div>
+    </div>
   )
 }
 
